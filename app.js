@@ -232,7 +232,11 @@
   function goToRound(i) {
     var n = state.data.rounds.length + (bonusRound() ? 1 : 0);
     if (n === 0) return;
-    state.roundIndex = ((i % n) + n) % n;
+    var target = ((i % n) + n) % n;
+    // Host notes close on every round change, so they can never carry over onto
+    // a projected screen — the host reopens them deliberately per round.
+    if (target !== state.roundIndex) state.notesOpen = false;
+    state.roundIndex = target;
     save();
     render();
   }

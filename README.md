@@ -19,10 +19,15 @@ Open the page on the machine driving the projector and work top to bottom:
 | Score a round | Revealed answers pile into the **round pot**; click *Award pot to …* (or `A` / `B`) to bank it |
 | Bonus / penalty points | The `−5 −1 +1 +5` buttons under each team's score |
 | Change round | Arrows, the dropdown, or `←` / `→` |
-| Host notes | **Host notes** or `N` — bonus-point rules from the deck, hidden by default so the projected screen stays clean |
+| Host notes | **Host notes** or `N` — bonus-point rules from the deck, hidden by default and closed again on every round change, so they can't carry over onto a projected screen |
 
 Team names are editable — click "Team A" and type over it. Everything (scores, reveals,
 strikes, names, edits) is saved in the browser, so a refresh mid-game loses nothing.
+
+If you're casting or mirroring to a big screen, remember the audience sees whatever you have
+open. Host notes close themselves whenever you change round, but the **Free guesses** panel and
+the **Edit** modal stay open until you close them — and the editor shows every unrevealed answer
+in the game.
 
 ### Two special rounds
 
