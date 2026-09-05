@@ -1,0 +1,137 @@
+{
+  "title": "Family Feud",
+  "subtitle": "Friends Edition",
+  "surveyNote": "Based on a live survey of 23 guests",
+  "rounds": [
+    {
+      "question": "Name a thing you do on Labor Day weekend.",
+      "notes": "Bonus points: watch football, eat a tomato sandwich, wear white, stress about Christmas presents.",
+      "answers": [
+        { "text": "BBQ / Grill Out", "points": 5 },
+        { "text": "Swim", "points": 4 },
+        { "text": "Boat", "points": 3 },
+        { "text": "Relax & Do Nothing", "points": 3 },
+        { "text": "Bicycle polo", "points": 1 }
+      ]
+    },
+    {
+      "question": "Your first thought when you see your ex across the bar?",
+      "notes": "",
+      "answers": [
+        { "text": "Freeze response (oh crap / hide)", "points": 8 },
+        { "text": "Fight response (Ew / hell no / they got ugly)", "points": 7 },
+        { "text": "Flight response (kill me / run)", "points": 5 },
+        { "text": "Fawn response (horny)", "points": 3 },
+        { "text": "What ex?", "points": 1 }
+      ]
+    },
+    {
+      "question": "Something you've done that your parents still don't know about.",
+      "notes": "Bonus points: public indecency, skydiving, sex (specifically gay).",
+      "answers": [
+        { "text": "Minor in possession of alcohol or illegal substances", "points": 10 },
+        { "text": "Had sex (unspecified orientation)", "points": 4 },
+        { "text": "Snuck out", "points": 3 },
+        { "text": "Misdemeanor property damage", "points": 2 },
+        { "text": "Crossing state or international borders for sex", "points": 2 }
+      ]
+    },
+    {
+      "question": "Something that's overpriced but you buy anyway.",
+      "notes": "Bonus points: frozen shrimp scampi, electrolytes, 3 ply toilet paper.",
+      "answers": [
+        { "text": "Fancy food", "points": 6 },
+        { "text": "Alcohol", "points": 4 },
+        { "text": "Skincare", "points": 4 },
+        { "text": "Coffee / Matcha", "points": 3 },
+        { "text": "Nice clothes, shoes, accessories, watches", "points": 3 }
+      ]
+    },
+    {
+      "question": "Something you pretend to understand but actually don't.",
+      "notes": "Bonus points: Chess, Fashion, Offsides, Why Lindsey <3 Erling Haaland.",
+      "answers": [
+        { "text": "Crypto / Stonks / Finance", "points": 6 },
+        { "text": "Tech & AI", "points": 4 },
+        { "text": "Government stuff (Healthcare, Immigration, Taxes, etc.)", "points": 4 },
+        { "text": "Basic life skills", "points": 2 },
+        { "text": "School subjects (English, Math, History)", "points": 2 }
+      ]
+    },
+    {
+      "question": "A place you go on a Saturday.",
+      "notes": "Bonus points: if you said a unique hobby.",
+      "answers": [
+        { "text": "Gym / workout class", "points": 6 },
+        { "text": "Farmers market", "points": 3 },
+        { "text": "Grocery store", "points": 3 },
+        { "text": "Bar", "points": 3 },
+        { "text": "Golf course", "points": 2 }
+      ]
+    },
+    {
+      "question": "Where you met your best friend.",
+      "notes": "Bonus point: whoever said the Zoo.",
+      "answers": [
+        { "text": "Bar / Cafe / Happy Hour", "points": 8 },
+        { "text": "School", "points": 5 },
+        { "text": "At home (do you have a best friend?)", "points": 4 },
+        { "text": "Darden specifically", "points": 3 },
+        { "text": "The Zoo", "points": 1 }
+      ]
+    },
+    {
+      "question": "Least memorable US President.",
+      "notes": "Lose one point for every person on your team who said “The ones I don't remember” or any derivative thereof.",
+      "answers": [
+        { "text": "Warren G. Harding", "points": 3 },
+        { "text": "Chester A. Arthur", "points": 2 },
+        { "text": "James K. Polk", "points": 2 },
+        { "text": "Trump", "points": 2 },
+        {
+          "text": "Any other president who got exactly one vote",
+          "type": "list",
+          "pointsPerItem": 1,
+          "noStrike": true,
+          "items": [
+            "Rutherford B. Hayes",
+            "James A. Garfield",
+            "Calvin Coolidge",
+            "William McKinley",
+            "Ulysses S. Grant",
+            "William H. Taft",
+            "Zachary Taylor",
+            "George H. W. Bush",
+            "Ronald Reagan",
+            "Lyndon B. Johnson",
+            "James Buchanan",
+            "Millard Fillmore"
+          ]
+        }
+      ]
+    },
+    {
+      "question": "Something you do in the car that you wouldn't do in public.",
+      "notes": "Best answer: Pee in a Calypso Lemonade bottle. It burns.",
+      "answers": [
+        { "text": "Sing or dance", "points": 12 },
+        { "text": "Nasty behavior (pick nose, clip nails/toes, scratch privates, pee in a bottle)", "points": 6 },
+        { "text": "Yell / rage", "points": 3 },
+        { "text": "Sex / something explicit", "points": 2 },
+        { "text": "Stare into the void", "points": 1 }
+      ]
+    },
+    {
+      "question": "An app you'd be embarrassed to share your weekly screen time on.",
+      "glitchQuestion": "Your worst personality trait, determined by the app you spend the most time on.",
+      "notes": "Best answers: Google Maps (bless your heart), TMZ (the last true American).",
+      "answers": [
+        { "text": "Negative attention span (TikTok, Instagram, Threads, Snap)", "points": 7 },
+        { "text": "iPad kid (YouTube, Reddit, NYT Games)", "points": 6 },
+        { "text": "In your slut era (dating apps)", "points": 3 },
+        { "text": "Corporate shill (LinkedIn)", "points": 2 },
+        { "text": "Pretentious ass (any news app)", "points": 2 }
+      ]
+    }
+  ]
+}

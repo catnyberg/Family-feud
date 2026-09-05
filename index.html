@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Family Feud — Friends Edition</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🎤</text></svg>">
+</head>
+<body>
+
+<div id="app" hidden>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-main" id="brandTitle">FAMILY FEUD</span>
+      <span class="brand-sub" id="brandSub">Friends Edition</span>
+    </div>
+    <nav class="round-nav">
+      <button id="prevRound" class="btn btn-ghost" title="Previous round (←)">&#9664;</button>
+      <select id="roundSelect" aria-label="Choose round"></select>
+      <button id="nextRound" class="btn btn-ghost" title="Next round (→)">&#9654;</button>
+    </nav>
+    <div class="topbar-actions">
+      <button id="muteBtn" class="btn btn-ghost" title="Mute / unmute (M)">🔊</button>
+      <button id="helpBtn" class="btn btn-ghost" title="Keyboard shortcuts (?)">?</button>
+      <button id="editBtn" class="btn btn-ghost" title="Edit questions (E)">Edit</button>
+    </div>
+  </header>
+
+  <main class="stage">
+
+    <div class="question-banner" id="questionBanner">
+      <span class="survey-says">Survey says…</span>
+      <h1 id="questionText"></h1>
+      <p class="survey-note" id="surveyNote"></p>
+    </div>
+
+    <section class="board" id="board" aria-label="Answer board"></section>
+
+    <div class="pot-row">
+      <div class="pot">
+        <span class="pot-label">Round pot</span>
+        <span class="pot-value" id="potValue">0</span>
+      </div>
+      <div class="strikes" id="strikeDisplay" aria-live="polite"></div>
+    </div>
+
+    <section class="controls">
+      <button id="strikeBtn" class="btn btn-strike" title="Add a strike (X)">✖ Strike</button>
+      <button id="clearStrikes" class="btn btn-ghost">Clear strikes</button>
+      <button id="awardA" class="btn btn-award" title="Award pot to team A (A)">Award pot →</button>
+      <button id="awardB" class="btn btn-award" title="Award pot to team B (B)">← Award pot</button>
+      <button id="glitchBtn" class="btn btn-glitch" hidden title="Glitch the question (G)">⚡ Glitch</button>
+      <button id="freeGuessBtn" class="btn btn-ghost" hidden>Free guesses</button>
+      <button id="notesBtn" class="btn btn-ghost">Host notes</button>
+      <button id="resetRound" class="btn btn-ghost">Reset round</button>
+      <button id="resetGame" class="btn btn-danger">Reset game</button>
+    </section>
+
+    <div class="notes-drawer" id="notesDrawer" hidden></div>
+
+    <section class="scores">
+      <div class="team" id="teamA">
+        <input class="team-name" id="teamAName" aria-label="Team A name" maxlength="24">
+        <div class="team-score" id="teamAScore">0</div>
+        <div class="team-adjust">
+          <button data-team="0" data-delta="-5" class="btn btn-tiny">−5</button>
+          <button data-team="0" data-delta="-1" class="btn btn-tiny">−1</button>
+          <button data-team="0" data-delta="1" class="btn btn-tiny">+1</button>
+          <button data-team="0" data-delta="5" class="btn btn-tiny">+5</button>
+        </div>
+      </div>
+      <div class="team" id="teamB">
+        <input class="team-name" id="teamBName" aria-label="Team B name" maxlength="24">
+        <div class="team-score" id="teamBScore">0</div>
+        <div class="team-adjust">
+          <button data-team="1" data-delta="-5" class="btn btn-tiny">−5</button>
+          <button data-team="1" data-delta="-1" class="btn btn-tiny">−1</button>
+          <button data-team="1" data-delta="1" class="btn btn-tiny">+1</button>
+          <button data-team="1" data-delta="5" class="btn btn-tiny">+5</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="strike-flash" id="strikeFlash" aria-hidden="true"></div>
+
+  <!-- Free guesses popover -->
+  <div class="modal" id="freeGuessModal" hidden>
+    <div class="modal-card modal-narrow">
+      <header class="modal-head">
+        <h2>Free guesses — no strike</h2>
+        <button class="btn btn-ghost" data-close="freeGuessModal">Close</button>
+      </header>
+      <div class="modal-body" id="freeGuessBody"></div>
+    </div>
+  </div>
+
+  <!-- Shortcuts -->
+  <div class="modal" id="helpModal" hidden>
+    <div class="modal-card modal-narrow">
+      <header class="modal-head">
+        <h2>Keyboard shortcuts</h2>
+        <button class="btn btn-ghost" data-close="helpModal">Close</button>
+      </header>
+      <div class="modal-body">
+        <dl class="shortcuts">
+          <dt>1 – 5</dt><dd>Reveal / hide that answer</dd>
+          <dt>X</dt><dd>Strike</dd>
+          <dt>C</dt><dd>Clear strikes</dd>
+          <dt>A / B</dt><dd>Award the pot to team A / B</dd>
+          <dt>← / →</dt><dd>Previous / next round</dd>
+          <dt>G</dt><dd>Glitch the question (when available)</dd>
+          <dt>N</dt><dd>Toggle host notes</dd>
+          <dt>M</dt><dd>Mute sound</dd>
+          <dt>E</dt><dd>Open the editor</dd>
+          <dt>?</dt><dd>This list</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <!-- Editor -->
+  <div class="modal" id="editModal" hidden>
+    <div class="modal-card">
+      <header class="modal-head">
+        <h2>Edit the game</h2>
+        <div class="modal-head-actions">
+          <button id="addRound" class="btn btn-ghost">+ Add round</button>
+          <button id="exportBtn" class="btn btn-ghost">Export JSON</button>
+          <button id="importBtn" class="btn btn-ghost">Import JSON</button>
+          <button id="restoreBtn" class="btn btn-ghost">Restore deck defaults</button>
+          <button class="btn btn-award" data-close="editModal">Done</button>
+        </div>
+      </header>
+      <p class="modal-hint">
+        Changes save to this browser as you type. Use <strong>Export JSON</strong> and commit the
+        downloaded <code>questions.json</code> to make them permanent for everyone.
+      </p>
+      <div class="modal-body" id="editBody"></div>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+    </div>
+  </div>
+
+</div>
+
+<noscript>
+  <p style="color:#fff;font:16px system-ui;padding:2rem">This game needs JavaScript enabled.</p>
+</noscript>
+
+<script src="app.js"></script>
+</body>
+</html>
