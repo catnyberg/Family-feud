@@ -3,9 +3,9 @@
 An interactive Family Feud board for hosting the game live, built from the original
 "Friends Edition" slide deck (survey of 23 guests, 10 rounds).
 
-Every answer stays hidden until you click it. There's a strike button, running scores for
-two teams, a built-in editor for changing questions, and a reset — all in a static page with
-no build step and no server.
+Every answer stays hidden until you click it. There's a strike button, running scores for two
+teams, a bonus round that settles the end-of-game prize scoring, a built-in editor for changing
+questions, and a reset — all in a static page with no build step and no server.
 
 ## Hosting a game
 
@@ -40,15 +40,44 @@ screen time on." Hit **⚡ Glitch** (or `G`) and the question tears itself apart
 the answers on the board are actually written for. Press it again to swap back if you want to
 rehearse it.
 
+### The bonus round
+
+After Round 10 comes the **Bonus Round**, for settling the final scoring rule. The board is
+replaced by ten clue cards — one survey answer per round, all given by the same person. Reveal
+them one at a time (click, or press `1`–`9` and `0` for the tenth) while the third-place pair
+tries to work out whose answers they are.
+
+**Reveal the answer** shows who it was, then record what happened:
+
+| Button | Meaning |
+| --- | --- |
+| Guessed right | The pair gambled and won — 5 points each |
+| Guessed wrong | The pair gambled and lost — 1 point each |
+| Declined the gamble | The pair kept the guaranteed 3 points |
+
+Underneath, **Final scoring** works out the whole prize table live from the two team totals: the
+winning team's pairs take 5 points each, the losing team's pairs take 1, and the third-place
+pair's line updates with whichever option they took. A tie is called out rather than guessed at.
+
+These are prize points for the pairs, deliberately separate from the team scores on the board —
+recording an outcome never changes Team A or Team B's total. **Clear result** re-hides everything
+if you want to run it again.
+
+The person, the prompt, the clue list and all five payout numbers are editable — the answer
+defaults to "The Host", so change it to your name in the editor.
+
 ### Resetting
 
-- **Reset round** — clears reveals, strikes and the pot for the current round only.
+- **Reset round** — clears reveals, strikes and the pot for the current round only. (On the bonus
+  round this is **Clear result** instead.)
 - **Reset game** — scores to zero, back to round 1, everything cleared. Your questions are kept.
 
 ### Keyboard shortcuts
 
 `1`–`5` reveal · `X` strike · `C` clear strikes · `A`/`B` award pot · `←`/`→` round ·
 `G` glitch · `N` notes · `M` mute · `E` editor · `?` this list
+
+On the bonus round, `1`–`9` and `0` reveal the ten clues; strike and pot keys do nothing there.
 
 ## Editing questions
 
@@ -58,6 +87,8 @@ text and points; add or delete answers; and add, delete or reorder whole rounds.
 - **Glitch question** — fill this in on any round to give it the ⚡ swap gag.
 - **Make checklist** — turns an answer into a tick-list like Round 8's, with points per item and
   the "never costs a strike" rule.
+- **★ Bonus round** — at the bottom: the prompt, who the answers belong to, the clue pairs, and
+  the five payout values (winning team, losing team, no-gamble split, bonus won, bonus lost).
 
 Edits save to your browser as you type. They are local to that browser — to make them permanent
 for everyone, click **Export JSON** and commit the downloaded file over `questions.json`:
@@ -98,4 +129,4 @@ so Pages serves the files as-is.
 | `index.html` | Page structure — board, controls, scores, editor |
 | `styles.css` | The look; projector-sized, works down to a phone |
 | `app.js` | Game state, rendering, editor, WebAudio sound effects |
-| `questions.json` | The ten rounds from the deck |
+| `questions.json` | The ten rounds from the deck, plus the bonus round |

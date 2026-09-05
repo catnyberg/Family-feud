@@ -15,6 +15,9 @@
 
 * { box-sizing: border-box; }
 
+/* the hidden attribute must beat any display rule below (.board, .pot-row, …) */
+[hidden] { display: none !important; }
+
 html, body {
   margin: 0;
   min-height: 100%;
@@ -289,6 +292,135 @@ body {
   font-size: .8rem;
   opacity: .75;
 }
+
+/* ---------- bonus round ---------- */
+
+.bonus {
+  padding: 1rem;
+  border-radius: 1.1rem;
+  background: linear-gradient(180deg, rgba(123, 47, 247, .22), rgba(0, 0, 0, .3));
+  border: 3px solid var(--gold-deep);
+}
+
+.clue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: .6rem;
+}
+
+.clue {
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  padding: .7rem .9rem;
+  border-radius: .7rem;
+  color: #fff;
+  background: linear-gradient(180deg, var(--blue-cell-hi), var(--blue-cell));
+  border: 2px solid rgba(255, 255, 255, .12);
+  box-shadow: var(--shadow);
+}
+
+.clue:hover { filter: brightness(1.15); }
+.clue:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+.clue-q { font-size: .82rem; opacity: .8; line-height: 1.35; }
+
+.clue-a {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  color: rgba(255, 255, 255, .35);
+}
+
+.clue.revealed {
+  background: linear-gradient(180deg, #f6f0dc, var(--cream));
+  color: var(--ink);
+  border-color: var(--gold);
+  animation: flip .3s ease;
+}
+
+.clue.revealed .clue-q { opacity: .65; }
+.clue.revealed .clue-a { color: #7b2ff7; text-transform: uppercase; }
+
+.bonus-reveal {
+  margin: 1rem 0 .8rem;
+  padding: 1rem;
+  text-align: center;
+  border-radius: .8rem;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: .06em;
+  color: rgba(255, 255, 255, .3);
+  background: rgba(0, 0, 0, .35);
+  border: 2px dashed rgba(255, 255, 255, .2);
+}
+
+.bonus-reveal.shown {
+  color: var(--ink);
+  background: var(--gold);
+  border-style: solid;
+  border-color: #fff;
+  text-transform: uppercase;
+  animation: pop .35s ease;
+}
+
+.bonus-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  justify-content: center;
+}
+
+.btn.chosen {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+  filter: brightness(1.2);
+}
+
+.payout {
+  margin-top: 1rem;
+  padding: .9rem 1.1rem;
+  border-radius: .8rem;
+  background: rgba(0, 0, 0, .35);
+  border-left: 5px solid var(--gold);
+}
+
+.payout h2 {
+  margin: 0 0 .5rem;
+  font-size: .72rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.payout-line { margin: .25rem 0; line-height: 1.5; }
+.payout-win { font-weight: 800; color: var(--gold); }
+.payout-tie { font-weight: 800; color: #ff8a8a; }
+.payout-pending { opacity: .75; font-style: italic; }
+.payout-settled { font-weight: 800; color: #9be8bd; }
+.payout-missed { font-weight: 800; color: #ff9a9a; }
+
+.payout-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: .5rem;
+}
+
+.payout-fields input {
+  font: inherit;
+  width: 100%;
+  padding: .45rem .6rem;
+  border-radius: .45rem;
+  border: 2px solid rgba(255, 255, 255, .2);
+  background: rgba(0, 0, 0, .35);
+  color: #fff;
+}
+
+.edit-bonus { border-color: rgba(255, 195, 31, .5); }
+.clue-row { grid-template-columns: 1.6rem 1fr 1fr auto; }
 
 /* ---------- pot + strikes ---------- */
 

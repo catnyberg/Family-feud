@@ -25,7 +25,8 @@
       scores: [0, 0],
       teamNames: ['Team A', 'Team B'],
       muted: false,
-      notesOpen: false
+      notesOpen: false,
+      bonus: { revealed: {}, hostRevealed: false, outcome: null }
     };
   }
 
@@ -38,6 +39,12 @@
   }
 
   function currentRound() { return state.data.rounds[state.roundIndex]; }
+
+  function bonusRound() { return state.data.bonusRound || null; }
+
+  /** The bonus round sits one past the last normal round. */
+  function bonusIndex() { return bonusRound() ? state.data.rounds.length : -1; }
+  function onBonus() { return state.roundIndex === bonusIndex(); }
 
   function save() {
     try {
@@ -125,11 +132,13 @@
   var $ = function (id) { return document.getElementById(id); };
   var el = {};
   ['app', 'brandTitle', 'brandSub', 'prevRound', 'nextRound', 'roundSelect', 'muteBtn', 'helpBtn',
-   'editBtn', 'questionBanner', 'questionText', 'surveyNote', 'board', 'potValue', 'strikeDisplay',
+   'editBtn', 'questionBanner', 'questionText', 'surveySays', 'surveyNote', 'board', 'potValue', 'strikeDisplay',
    'strikeBtn', 'clearStrikes', 'awardA', 'awardB', 'glitchBtn', 'freeGuessBtn', 'notesBtn',
    'resetRound', 'resetGame', 'notesDrawer', 'teamAName', 'teamBName', 'teamAScore', 'teamBScore',
    'strikeFlash', 'freeGuessModal', 'freeGuessBody', 'helpModal', 'editModal', 'editBody',
-   'addRound', 'exportBtn', 'importBtn', 'restoreBtn', 'importFile'
+   'addRound', 'exportBtn', 'importBtn', 'restoreBtn', 'importFile',
+   'bonusPanel', 'clueGrid', 'bonusReveal', 'payout', 'revealHost', 'bonusWin', 'bonusLose',
+   'bonusSplit', 'bonusClear', 'potRow'
   ].forEach(function (id) { el[id] = $(id); });
 
   /* --------------------------------------------------------------- scoring */
@@ -145,8 +154,9 @@
   /** The pot is whatever is revealed/ticked minus what has already been banked,
    *  so awarding never has to blank the board. */
   function recomputePot() {
-    var rs = roundState();
     var round = currentRound();
+    if (!round) return;                          // bonus round has no pot
+    var rs = roundState();
     var total = 0;
     round.answers.forEach(function (a, i) {
       if (a.type === 'list') {
@@ -220,7 +230,7 @@
   }
 
   function goToRound(i) {
-    var n = state.data.rounds.length;
+    var n = state.data.rounds.length + (bonusRound() ? 1 : 0);
     if (n === 0) return;
     state.roundIndex = ((i % n) + n) % n;
     save();
@@ -228,7 +238,11 @@
   }
 
   function resetRound() {
-    state.rounds[String(state.roundIndex)] = blankRoundState();
+    if (onBonus()) {
+      state.bonus = { revealed: {}, hostRevealed: false, outcome: null };
+    } else {
+      state.rounds[String(state.roundIndex)] = blankRoundState();
+    }
     save();
     render();
   }
@@ -261,6 +275,119 @@
     }, 800);
   }
 
+  /* ----------------------------------------------------------- bonus round */
+
+  function toggleClue(i) {
+    var b = state.bonus;
+    b.revealed[i] = !b.revealed[i];
+    if (b.revealed[i]) play('reveal');
+    save();
+    render();
+  }
+
+  function setBonusOutcome(outcome) {
+    state.bonus.outcome = state.bonus.outcome === outcome ? null : outcome;
+    if (state.bonus.outcome === 'win') play('award');
+    else if (state.bonus.outcome === 'lose') play('strike');
+    save();
+    render();
+  }
+
+  function pts(n) { return n + (Math.abs(n) === 1 ? ' pt' : ' pts'); }
+
+  function payoutFor(kind) {
+    var p = (bonusRound() && bonusRound().payout) || {};
+    var fallback = { win: 5, lose: 1, split: 3, first: 5, second: 1 };
+    return p[kind] === undefined ? fallback[kind] : p[kind];
+  }
+
+  function renderBonus() {
+    var bonus = bonusRound();
+    var b = state.bonus;
+
+    el.surveySays.textContent = bonus.title || 'Bonus Round';
+    el.questionText.textContent = bonus.prompt || 'Whose survey answers are these?';
+    el.surveyNote.textContent = 'Third-place pair only — all or nothing';
+
+    // Clue cards
+    el.clueGrid.innerHTML = '';
+    (bonus.clues || []).forEach(function (clue, i) {
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'clue' + (b.revealed[i] ? ' revealed' : '');
+      var q = document.createElement('span');
+      q.className = 'clue-q';
+      q.textContent = clue.question;
+      var a = document.createElement('span');
+      a.className = 'clue-a';
+      a.textContent = b.revealed[i] ? clue.answer : 'Click to reveal';
+      card.appendChild(q);
+      card.appendChild(a);
+      card.addEventListener('click', function () { toggleClue(i); });
+      el.clueGrid.appendChild(card);
+    });
+
+    // The answer
+    el.bonusReveal.className = 'bonus-reveal' + (b.hostRevealed ? ' shown' : '');
+    el.bonusReveal.textContent = b.hostRevealed
+      ? 'It was ' + (bonus.hostName || 'The Host') + '.'
+      : 'Answer hidden';
+    el.revealHost.textContent = b.hostRevealed ? 'Hide the answer' : 'Reveal the answer';
+    el.bonusWin.hidden = !b.hostRevealed;
+    el.bonusLose.hidden = !b.hostRevealed;
+    el.bonusWin.textContent = 'Guessed right — ' + pts(payoutFor('win'));
+    el.bonusLose.textContent = 'Guessed wrong — ' + pts(payoutFor('lose'));
+    el.bonusSplit.textContent = 'Declined the gamble — ' + pts(payoutFor('split'));
+    [['bonusWin', 'win'], ['bonusLose', 'lose'], ['bonusSplit', 'split']].forEach(function (pair) {
+      el[pair[0]].classList.toggle('chosen', b.outcome === pair[1]);
+    });
+
+    renderPayout();
+  }
+
+  /** The end-of-game prize table, derived from the two team scores. */
+  function renderPayout() {
+    var b = state.bonus;
+    var a0 = state.scores[0], a1 = state.scores[1];
+    var names = state.teamNames;
+
+    el.payout.innerHTML = '';
+    var head = document.createElement('h2');
+    head.textContent = 'Final scoring';
+    el.payout.appendChild(head);
+
+    var lines = [];
+    if (a0 === a1) {
+      lines.push(['Dead tie at ' + a0 + ' — break it before paying out.', 'tie']);
+    } else {
+      var leadIdx = a0 > a1 ? 0 : 1;
+      lines.push([names[leadIdx] + ' wins the Feud (' + Math.max(a0, a1) + ' to ' +
+        Math.min(a0, a1) + ') — ' + pts(payoutFor('first')) + ' to each pair on that team.', 'win']);
+      lines.push([names[1 - leadIdx] + ' — ' + pts(payoutFor('second')) + ' to each pair.', 'lose']);
+    }
+
+    var third, thirdClass = b.outcome ? 'settled' : 'pending';
+    if (b.outcome === 'win') {
+      third = 'Third-place pair gambled and nailed it: ' + pts(payoutFor('win')) + ' each.';
+    } else if (b.outcome === 'lose') {
+      third = 'Third-place pair gambled and missed: ' + pts(payoutFor('lose')) + ' each.';
+      thirdClass = 'missed';
+    } else if (b.outcome === 'split') {
+      third = 'Third-place pair kept the split: ' + pts(payoutFor('split')) + ' each.';
+    } else {
+      third = 'Third-place pair: ' + pts(payoutFor('split')) + ' each, or gamble on the bonus for ' +
+        payoutFor('win') + ' / ' + payoutFor('lose') + '.';
+    }
+    lines.push([third, thirdClass]);
+
+    lines.forEach(function (line) {
+      var p = document.createElement('p');
+      p.className = 'payout-line payout-' + line[1];
+      p.textContent = line[0];
+      el.payout.appendChild(p);
+    });
+  }
+
   /* ---------------------------------------------------------------- render */
 
   function render() {
@@ -277,7 +404,31 @@
       opt.textContent = 'Round ' + (i + 1) + ' — ' + truncate(r.question, 44);
       el.roundSelect.appendChild(opt);
     });
+    if (bonusRound()) {
+      var bopt = document.createElement('option');
+      bopt.value = String(bonusIndex());
+      bopt.textContent = '★ ' + (bonusRound().title || 'Bonus Round') + ' — ' +
+        truncate(bonusRound().prompt || '', 34);
+      el.roundSelect.appendChild(bopt);
+    }
     el.roundSelect.value = String(state.roundIndex);
+
+    // The bonus round replaces the board with its own panel.
+    var bonusView = onBonus();
+    el.bonusPanel.hidden = !bonusView;
+    el.board.hidden = bonusView;
+    el.potRow.hidden = bonusView;
+    [el.strikeBtn, el.clearStrikes, el.awardA, el.awardB, el.resetRound].forEach(function (b) {
+      b.hidden = bonusView;
+    });
+    if (bonusView) {
+      el.glitchBtn.hidden = true;
+      el.freeGuessBtn.hidden = true;
+      renderBonusNotes();
+      renderBonus();
+      renderScoreboard();
+      return;
+    }
 
     if (!round) {
       el.questionText.textContent = 'No rounds yet — open the editor to add one.';
@@ -288,6 +439,7 @@
     var rs = roundState();
 
     // Question banner
+    el.surveySays.textContent = 'Survey says…';
     el.questionText.textContent = (rs.glitched && round.glitchQuestion) ? round.glitchQuestion : round.question;
     el.surveyNote.textContent = state.data.surveyNote || '';
     el.glitchBtn.hidden = !round.glitchQuestion;
@@ -330,6 +482,10 @@
     // Awards + scores
     el.awardA.textContent = '← Award pot to ' + state.teamNames[0];
     el.awardB.textContent = 'Award pot to ' + state.teamNames[1] + ' →';
+    renderScoreboard();
+  }
+
+  function renderScoreboard() {
     if (document.activeElement !== el.teamAName) el.teamAName.value = state.teamNames[0];
     if (document.activeElement !== el.teamBName) el.teamBName.value = state.teamNames[1];
     el.teamAScore.textContent = String(state.scores[0]);
@@ -337,6 +493,22 @@
 
     el.muteBtn.textContent = state.muted ? '🔇' : '🔊';
     el.muteBtn.setAttribute('aria-pressed', String(state.muted));
+  }
+
+  function renderBonusNotes() {
+    var notes = (bonusRound() || {}).notes;
+    var has = !!(notes && notes.trim());
+    el.notesBtn.hidden = !has;
+    el.notesDrawer.hidden = !(has && state.notesOpen);
+    if (!has) return;
+    el.notesDrawer.innerHTML = '';
+    var label = document.createElement('span');
+    label.className = 'notes-label';
+    label.textContent = 'Host notes';
+    var body = document.createElement('span');
+    body.textContent = notes;
+    el.notesDrawer.appendChild(label);
+    el.notesDrawer.appendChild(body);
   }
 
   function buildCell(answer, i, rs) {
@@ -482,6 +654,100 @@
     state.data.rounds.forEach(function (round, ri) {
       el.editBody.appendChild(buildRoundEditor(round, ri));
     });
+    if (bonusRound()) el.editBody.appendChild(buildBonusEditor());
+  }
+
+  function buildBonusEditor() {
+    var bonus = bonusRound();
+    var box = document.createElement('div');
+    box.className = 'edit-round edit-bonus';
+
+    var head = document.createElement('div');
+    head.className = 'edit-round-head';
+    var title = document.createElement('h3');
+    title.textContent = '★ Bonus round';
+    head.appendChild(title);
+    box.appendChild(head);
+
+    box.appendChild(field('Prompt', 'text', bonus.prompt || '', function (v) {
+      bonus.prompt = v; commitEdit(false);
+    }));
+    box.appendChild(field('Whose answers are they? (the reveal)', 'text', bonus.hostName || '', function (v) {
+      bonus.hostName = v; commitEdit(false);
+    }));
+    box.appendChild(field('Host notes', 'textarea', bonus.notes || '', function (v) {
+      bonus.notes = v; commitEdit(false);
+    }));
+
+    var pay = document.createElement('div');
+    pay.className = 'payout-fields';
+    [['first', 'Winning team, per pair'], ['second', 'Losing team, per pair'],
+     ['split', 'Third pair, no gamble'], ['win', 'Bonus won'], ['lose', 'Bonus lost']
+    ].forEach(function (spec) {
+      var wrap = document.createElement('div');
+      wrap.className = 'edit-field';
+      var label = document.createElement('label');
+      label.textContent = spec[1];
+      var input = document.createElement('input');
+      input.type = 'number';
+      bonus.payout = bonus.payout || {};
+      input.value = String(payoutFor(spec[0]));
+      input.addEventListener('input', function () {
+        bonus.payout[spec[0]] = Number(input.value) || 0; commitEdit(false);
+      });
+      wrap.appendChild(label);
+      wrap.appendChild(input);
+      pay.appendChild(wrap);
+    });
+    box.appendChild(pay);
+
+    var cluesLabel = document.createElement('label');
+    cluesLabel.style.cssText = 'display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin:.7rem 0 .3rem';
+    cluesLabel.textContent = 'Clues';
+    box.appendChild(cluesLabel);
+
+    bonus.clues = bonus.clues || [];
+    bonus.clues.forEach(function (clue, ci) {
+      var row = document.createElement('div');
+      row.className = 'answer-row clue-row';
+
+      var idx = document.createElement('span');
+      idx.className = 'idx';
+      idx.textContent = String(ci + 1);
+
+      var qIn = document.createElement('input');
+      qIn.type = 'text';
+      qIn.value = clue.question || '';
+      qIn.placeholder = 'Question';
+      qIn.addEventListener('input', function () { clue.question = qIn.value; commitEdit(false); });
+
+      var aIn = document.createElement('input');
+      aIn.type = 'text';
+      aIn.value = clue.answer || '';
+      aIn.placeholder = 'Their answer';
+      aIn.addEventListener('input', function () { clue.answer = aIn.value; commitEdit(false); });
+
+      var del = smallBtn('✕', 'Delete clue', function () {
+        bonus.clues.splice(ci, 1);
+        state.bonus.revealed = {};
+        commitEdit(true);
+      });
+
+      row.appendChild(idx);
+      row.appendChild(qIn);
+      row.appendChild(aIn);
+      row.appendChild(del);
+      box.appendChild(row);
+    });
+
+    var add = smallBtn('+ Add clue', '', function () {
+      bonus.clues.push({ question: 'New question?', answer: 'Their answer' });
+      commitEdit(true);
+    });
+    add.style.marginTop = '.4rem';
+    box.appendChild(add);
+
+    return box;
   }
 
   function buildRoundEditor(round, ri) {
@@ -771,6 +1037,19 @@
     el.glitchBtn.addEventListener('click', toggleGlitch);
     el.freeGuessBtn.addEventListener('click', openFreeGuesses);
 
+    el.revealHost.addEventListener('click', function () {
+      state.bonus.hostRevealed = !state.bonus.hostRevealed;
+      if (state.bonus.hostRevealed) play('award');
+      save(); render();
+    });
+    el.bonusWin.addEventListener('click', function () { setBonusOutcome('win'); });
+    el.bonusLose.addEventListener('click', function () { setBonusOutcome('lose'); });
+    el.bonusSplit.addEventListener('click', function () { setBonusOutcome('split'); });
+    el.bonusClear.addEventListener('click', function () {
+      state.bonus = { revealed: {}, hostRevealed: false, outcome: null };
+      save(); render();
+    });
+
     el.notesBtn.addEventListener('click', function () {
       state.notesOpen = !state.notesOpen; save(); render();
     });
@@ -822,7 +1101,15 @@
     if (anyModalOpen()) return;
 
     var k = e.key;
-    if (k >= '1' && k <= '9') { toggleReveal(Number(k) - 1); e.preventDefault(); return; }
+    if (k >= '0' && k <= '9') {
+      if (onBonus()) toggleClue(k === '0' ? 9 : Number(k) - 1);
+      else if (k !== '0') toggleReveal(Number(k) - 1);
+      e.preventDefault();
+      return;
+    }
+
+    // Strikes, the pot and glitches mean nothing on the bonus round.
+    if (onBonus() && 'xcabg'.indexOf(k.toLowerCase()) !== -1) return;
 
     switch (k.toLowerCase()) {
       case 'x': addStrike(); break;

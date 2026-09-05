@@ -31,14 +31,27 @@
   <main class="stage">
 
     <div class="question-banner" id="questionBanner">
-      <span class="survey-says">Survey says…</span>
+      <span class="survey-says" id="surveySays">Survey says…</span>
       <h1 id="questionText"></h1>
       <p class="survey-note" id="surveyNote"></p>
     </div>
 
     <section class="board" id="board" aria-label="Answer board"></section>
 
-    <div class="pot-row">
+    <section class="bonus" id="bonusPanel" hidden>
+      <div class="clue-grid" id="clueGrid"></div>
+      <div class="bonus-reveal" id="bonusReveal"></div>
+      <div class="bonus-controls">
+        <button id="revealHost" class="btn btn-award">Reveal the answer</button>
+        <button id="bonusWin" class="btn btn-award" hidden>Guessed right</button>
+        <button id="bonusLose" class="btn btn-strike" hidden>Guessed wrong</button>
+        <button id="bonusSplit" class="btn btn-ghost">Declined the gamble</button>
+        <button id="bonusClear" class="btn btn-ghost">Clear result</button>
+      </div>
+      <div class="payout" id="payout"></div>
+    </section>
+
+    <div class="pot-row" id="potRow">
       <div class="pot">
         <span class="pot-label">Round pot</span>
         <span class="pot-value" id="potValue">0</span>
@@ -108,6 +121,7 @@
       <div class="modal-body">
         <dl class="shortcuts">
           <dt>1 – 5</dt><dd>Reveal / hide that answer</dd>
+          <dt>1 – 0</dt><dd>On the bonus round, reveal that clue (0 = the tenth)</dd>
           <dt>X</dt><dd>Strike</dd>
           <dt>C</dt><dd>Clear strikes</dd>
           <dt>A / B</dt><dd>Award the pot to team A / B</dd>
