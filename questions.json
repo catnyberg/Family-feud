@@ -284,7 +284,7 @@
   "bonusRound": {
     "title": "Bonus Round",
     "prompt": "Whose survey answers are these?",
-    "hostName": "The Host",
+    "hostName": "Cat",
     "notes": "For the 3rd-place pair only. They can keep their guaranteed 3 points, or gamble: name the person correctly to win 5 points each, get it wrong and take 1.",
     "payout": {
       "win": 5,

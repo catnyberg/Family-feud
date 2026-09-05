@@ -63,8 +63,8 @@ These are prize points for the pairs, deliberately separate from the team scores
 recording an outcome never changes Team A or Team B's total. **Clear result** re-hides everything
 if you want to run it again.
 
-The person, the prompt, the clue list and all five payout numbers are editable — the answer
-defaults to "The Host", so change it to your name in the editor.
+The answer is set to **Cat**. That, the prompt, the clue list and all five payout numbers are
+editable in the editor.
 
 ### Resetting
 
